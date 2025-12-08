@@ -3,8 +3,10 @@ import { Hono } from "hono";
 const app = new Hono();
 
 app
-  .post("/webhook", (c) => {
-    return c.text("Hello Hono!");
+  .post("/", (c) => {
+    const body = c.req.json();
+    console.log(body);
+    return c.text("");
   })
   .get("/health", (c) => {
     return c.text("ok");
