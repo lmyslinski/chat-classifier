@@ -19,6 +19,8 @@ Create the webhook handler in the Livechat developer dashboard, get the webhook 
 - My initial thought was to classify each chat with a confidence rate - if it's too low initially, we re-classify as we get more messages coming in. This won't work since we have `general`, so it will always fit as a fallback.
 - that 10k chats per hour seems like much but I don't really think this needs a queue. Most chats will be classified after one/two messages tops
 - we might use batch processing to handle load better but this will increase the latency 
+- since latency is not that big of a deal, we will just run a periodic job
+- go-to design for now: classify batch of chats every 10 secs, check the embeddings against the corrections
 
 # Issue log
 
