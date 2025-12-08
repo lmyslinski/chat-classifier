@@ -3,8 +3,8 @@ import { Hono } from "hono";
 const app = new Hono();
 
 app
-  .post("/", (c) => {
-    const body = c.req.json();
+  .post("/", async (c) => {
+    const body = await c.req.json();
     console.log(body);
     return c.text("");
   })
@@ -13,4 +13,3 @@ app
   });
 
 export default app;
-
