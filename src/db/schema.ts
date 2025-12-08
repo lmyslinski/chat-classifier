@@ -16,6 +16,6 @@ export const messages = pgTable("messages", {
   chatId: varchar("chatId", { length: 255 })
     .notNull()
     .references(() => chats.id),
-  timestamp: timestamp("timestamp").notNull(),
+  timestamp: timestamp("timestamp", { mode: "date" }).notNull(),
 });
 

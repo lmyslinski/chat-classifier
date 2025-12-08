@@ -18,7 +18,7 @@ async function persistMessage(msg: ThreadMessage) {
     id: msg.msgId,
     text: msg.text,
     chatId: msg.chatId,
-    timestamp: msg.timestamp,
+    timestamp: new Date(msg.timestamp),
     type: msg.type,
   });
 }

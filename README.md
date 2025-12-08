@@ -14,6 +14,10 @@ Run the migrations:
 
 Create the webhook handler in the Livechat developer dashboard, get the webhook secret and put it into `WH_SECRET`
 
+# Design log
+
+- My initial thought was to classify each chat with a confidence rate - if it's too low initially, we re-classify as we get more messages coming in. This won't work since we have `general`, so it will always fit as a fallback.
+
 # Issue log
 
 - Couldn't sign up with a priv account via SSO (email worked)
