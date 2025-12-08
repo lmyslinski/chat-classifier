@@ -1,3 +1,9 @@
+export type ThreadMessage = {
+  type: "user" | "bot";
+  text: string;
+  timestamp: string;
+};
+
 export interface WebhookEvent {
   webhook_id: string;
   secret_key: string;
