@@ -1,6 +1,9 @@
 export type ThreadMessage = {
+  msgId: string;
   type: "user" | "bot";
   text: string;
+  chatId: string;
+  threadId: string;
   timestamp: string;
 };
 

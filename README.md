@@ -1,5 +1,19 @@
 # chat-classifier
 
+## Getting started
+
+Start the dependencies:
+
+`docker-compose up -d`
+
+Run the migrations: 
+
+`bunx drizzle-kit migrate`
+
+`cp .env.sample .env`
+
+Create the webhook handler in the Livechat developer dashboard, get the webhook secret and put it into `WH_SECRET`
+
 # Issue log
 
 - Couldn't sign up with a priv account via SSO (email worked)
