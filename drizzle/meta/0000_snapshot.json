@@ -1,9 +1,47 @@
 {
-  "id": "53c86169-d4a0-479a-aea7-3c6ce9c63dae",
+  "id": "96a12683-3f9b-4fb1-9368-a99ede30593a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.chats": {
+      "name": "chats",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "confidence": {
+          "name": "confidence",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.messages": {
       "name": "messages",
       "schema": "",
@@ -26,8 +64,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "thread_id": {
-          "name": "thread_id",
+        "chatId": {
+          "name": "chatId",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
@@ -41,12 +79,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "messages_thread_id_threads_id_fk": {
-          "name": "messages_thread_id_threads_id_fk",
+        "messages_chatId_chats_id_fk": {
+          "name": "messages_chatId_chats_id_fk",
           "tableFrom": "messages",
-          "tableTo": "threads",
+          "tableTo": "chats",
           "columnsFrom": [
-            "thread_id"
+            "chatId"
           ],
           "columnsTo": [
             "id"
@@ -55,32 +93,6 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.threads": {
-      "name": "threads",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

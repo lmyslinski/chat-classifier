@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, varchar, integer } from "drizzle-orm/pg-core";
 
 export const chats = pgTable("chats", {
   id: varchar("id", { length: 255 }).primaryKey(),
@@ -7,6 +7,7 @@ export const chats = pgTable("chats", {
     length: 255,
     enum: ["billing", "technical", "sales", "general"],
   }),
+  confidence: integer("confidence"),
 });
 
 export const messages = pgTable("messages", {
