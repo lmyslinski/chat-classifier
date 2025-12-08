@@ -16,6 +16,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@google/genai": "^1.31.0",
     "bullmq": "^5.0.0",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.0",

@@ -6,7 +6,7 @@ export const chats = pgTable("chats", {
   category: varchar("type", {
     length: 255,
     enum: ["billing", "technical", "sales", "general"],
-  }).notNull(),
+  }),
 });
 
 export const messages = pgTable("messages", {
@@ -18,4 +18,3 @@ export const messages = pgTable("messages", {
     .references(() => chats.id),
   timestamp: timestamp("timestamp", { mode: "date" }).notNull(),
 });
-

@@ -10,9 +10,10 @@ Run the migrations:
 
 `bunx drizzle-kit migrate`
 
+Create and populate the .env file:
+
 `cp .env.sample .env`
 
-Create the webhook handler in the Livechat developer dashboard, get the webhook secret and put it into `WH_SECRET`
 
 # Design log
 
