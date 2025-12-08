@@ -1,3 +1,16 @@
+export interface ChatWithMessages {
+  id: string;
+  category: string | null;
+  confidence: number | null;
+  messages: Array<{
+    id: string;
+    type: string;
+    text: string;
+    chatId: string;
+    timestamp: Date;
+  }>;
+}
+
 export type ThreadMessage = {
   msgId: string;
   type: "user" | "bot";
