@@ -1,5 +1,6 @@
 import { db } from "./db/db";
-import { messages } from "./db/schema";
+import { chats, messages } from "./db/schema";
+import { eq } from "drizzle-orm";
 import type { ThreadMessage, WebhookEvent } from "./types";
 
 function extractMessage(event: WebhookEvent): ThreadMessage {
@@ -14,6 +15,14 @@ function extractMessage(event: WebhookEvent): ThreadMessage {
 }
 
 async function persistMessage(msg: ThreadMessage) {
+  const existingChat = await db.select().from(chats).where(eq(chats.id, msg.chatId)).limit(1);
+
+  if (existingChat.length === 0) {
+    await db.insert(chats).values({
+      id: msg.chatId,
+    });
+  }
+
   await db.insert(messages).values({
     id: msg.msgId,
     text: msg.text,
