@@ -36,6 +36,7 @@ Run the server:
 - lack of polish: logging, transactions, indexes etc.
 - might as well not use queues at all
 - no tests
+- we could also use ai-classified chats as reference if the confidence is high enough
 
 # Design log
 
