@@ -9,7 +9,6 @@ export const chats = pgTable("chats", {
     enum: ["billing", "technical", "sales", "general"],
   }),
   confidence: integer("confidence"),
-  embedding: vector({ dimensions: 768 }),
   isManuallyCorrected: boolean("is_manually_corrected").default(false),
   correctedAt: timestamp("corrected_at"),
 });

@@ -1,12 +1,6 @@
 import { type Embedding, embedMany } from "ai";
 import type { Context } from "hono";
-import {
-  createCorrection,
-  getCurrentChat,
-  persistMessage,
-  setCorrectedCategoryOnOriginalChat,
-  updateChatEmbeddings,
-} from "./db/queries";
+import { createCorrection, getCurrentChat, persistMessage, setCorrectedCategoryOnOriginalChat } from "./db/queries";
 import type { ChatCategory, ChatWithMessages, ThreadMessage, WebhookEvent } from "./types";
 
 function extractMessage(event: WebhookEvent): ThreadMessage {
@@ -39,8 +33,7 @@ export async function handleCorrection(c: Context, chatId: string, correctCatego
 
   await setCorrectedCategoryOnOriginalChat(chatId, correctCategory);
   const embedding = await generateEmbeddingsForChat(chat);
-  await createCorrection(chat.id, correctCategory);
-  await updateChatEmbeddings(chat.id, embedding);
+  await createCorrection(chat.id, correctCategory, embedding);
 
   return c.json({ success: true });
 }

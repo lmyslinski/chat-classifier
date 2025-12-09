@@ -72,10 +72,6 @@ export async function findSimilarCorrection(
   return result.rows.length > 0 ? (result.rows[0] as { correctedCategory: string; similarity: number }) : null;
 }
 
-export async function updateChatEmbeddings(chatId: string, embedding: Embedding) {
-  await db.update(chats).set({ embedding }).where(eq(chats.id, chatId));
-}
-
 export async function createCorrection(chatId: string, correctedCategory: ChatCategory, embedding: Embedding) {
   await db.insert(corrections).values({
     chatId,

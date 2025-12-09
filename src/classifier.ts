@@ -8,10 +8,9 @@ import {
   fetchCorrectedChatsWithoutEmbeddings,
   fetchUnclassifedOrLowConfidenceChats,
   findSimilarCorrection,
-  updateChatEmbeddings,
 } from "./db/queries";
 import { chats } from "./db/schema";
-import type { ChatWithMessages } from "./types";
+import type { ChatWithMessages, ChatCategory } from "./types";
 
 export async function classifyChats() {
   const unclassifiedChats = await fetchUnclassifedOrLowConfidenceChats();
@@ -86,6 +85,6 @@ export async function generateEmbeddings() {
     });
 
     const embedding = embeddings[0] || [];
-    updateChatEmbeddings(chat.id, embedding);
+    await createCorrection(chat.id, chat.category as ChatCategory, embedding);
   }
 }

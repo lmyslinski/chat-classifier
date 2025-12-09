@@ -4,7 +4,6 @@ export interface ChatWithMessages {
   id: string;
   category: ChatCategory | null;
   confidence: number | null;
-  embedding?: number[];
   isManuallyCorrected?: boolean;
   correctedAt?: Date;
   messages: Array<{
