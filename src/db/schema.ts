@@ -1,4 +1,5 @@
-import { pgTable, text, timestamp, varchar, integer } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const chats = pgTable("chats", {
   id: varchar("id", { length: 255 }).primaryKey(),
@@ -19,3 +20,14 @@ export const messages = pgTable("messages", {
     .references(() => chats.id),
   timestamp: timestamp("timestamp", { mode: "date" }).notNull(),
 });
+
+export const chatsRelations = relations(chats, ({ many }) => ({
+  messages: many(messages),
+}));
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+  chat: one(chats, {
+    fields: [messages.chatId],
+    references: [chats.id],
+  }),
+}));

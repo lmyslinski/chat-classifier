@@ -1,6 +1,6 @@
+import { eq } from "drizzle-orm";
 import { db } from "./db/db";
 import { chats, messages } from "./db/schema";
-import { eq } from "drizzle-orm";
 import type { ThreadMessage, WebhookEvent } from "./types";
 
 function extractMessage(event: WebhookEvent): ThreadMessage {

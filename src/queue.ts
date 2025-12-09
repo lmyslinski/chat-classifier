@@ -1,5 +1,6 @@
 import { type Job, Queue, Worker } from "bullmq";
 import IORedis from "ioredis";
+import { classifyChats } from "./classifier";
 
 const connection = new IORedis({
   host: "localhost",
@@ -11,26 +12,20 @@ export const sampleQueue = new Queue("chat-worker", { connection });
 
 export const sampleWorker = new Worker(
   "chat-worker",
-  async (job: Job) => {
-    console.log(`Processing job ${job.id} at ${new Date().toISOString()}`);
-    console.log("Job data:", job.data);
-
-    console.log(`Job ${job.id} completed`);
-    return { processedAt: new Date() };
+  async () => {
+    console.log(`Starting classifier`);
+    await classifyChats();
+    console.log(`Classifier completed`);
   },
   { connection },
 );
 
 export async function setupRepeatableJob() {
-  await sampleQueue.add(
-    "",
-    { message: "This job runs every 10 seconds" },
-    {
-      repeat: {
-        every: 10000,
-      },
+  await sampleQueue.add("classify-job", null, {
+    repeat: {
+      every: 10000,
     },
-  );
+  });
 }
 
 sampleWorker.on("completed", (job: Job, result: any) => {
