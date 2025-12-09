@@ -14,6 +14,28 @@ Create and populate the .env file:
 
 `cp .env.sample .env`
 
+Run the server:
+
+`bun dev`
+
+# Solution overview
+
+- All incoming chats are persisted to the DB
+- Every 10 seconds we run a job that classifies non-classified chats:
+  - Use the embeddings between current chat and corrected chat embeddings to find most relevant conversation
+  - Use that category if % is good enough
+  - Else use AI to classify chat
+- When a correction is sent, we calculate and store the embeddings for the chat along with embeddings
+- Bot messages are skipped, only user messages are taken into account
+
+
+# Remaining issues
+
+- No built-in stop for low % chats
+- general category is problematic
+- lack of polish: logging, transactions, indexes etc.
+- might as well not use queues at all
+- no tests
 
 # Design log
 

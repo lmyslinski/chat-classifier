@@ -1,4 +1,5 @@
 import { embedMany } from "ai";
+import type { ChatWithMessages } from "./types";
 
 async function generateEmbeddingsForChat(chat: ChatWithMessages) {
   const messageText = chat.messages.map((msg) => msg.text).join("\n");
@@ -9,3 +10,5 @@ async function generateEmbeddingsForChat(chat: ChatWithMessages) {
   });
   return embeddings[0];
 }
+
+export { generateEmbeddingsForChat };

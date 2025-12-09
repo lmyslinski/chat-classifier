@@ -32,14 +32,13 @@ async function classifyChat(chat: ChatWithMessages) {
       .update(chats)
       .set({
         category: similarCorrection.correctedCategory as "billing" | "technical" | "sales" | "general",
-        confidence: 85,
+        confidence: similarCorrection.similarity,
       })
       .where(eq(chats.id, chat.id));
 
     return;
   }
 
-  // 2. Fallback to AI classification
   const { object } = await generateObject({
     model: google("gemini-2.5-flash"),
     schema: classificationSchema,

@@ -28,6 +28,12 @@ export interface SimilarCorrection {
   similarity: number;
 }
 
+export interface ChatMetrics {
+  totalChats: number;
+  correctedChats: number;
+  correctionRate: number;
+}
+
 export type ThreadMessage = {
   msgId: string;
   type: "user" | "bot";

@@ -1,6 +1,6 @@
 import { type Embedding, embedMany } from "ai";
 import { eq, isNull, lt, or, sql } from "drizzle-orm";
-import type { ChatCategory, ChatWithMessages, ThreadMessage } from "../types";
+import type { ChatCategory, ChatMetrics, ChatWithMessages, ThreadMessage } from "../types";
 import { db } from "./db";
 import { chats, corrections, messages } from "./schema";
 
@@ -89,4 +89,22 @@ export async function setCorrectedCategoryOnOriginalChat(chatId: string, correct
       correctedAt: new Date(),
     })
     .where(eq(chats.id, chatId));
+}
+
+export async function getChatMetrics(): Promise<ChatMetrics> {
+  const totalChatsResult = await db.select({ count: sql`count(*)` }).from(chats);
+  const totalChats = Number(totalChatsResult[0]?.count || 0);
+
+  const correctedChatsResult = await db
+    .select({ count: sql`count(*)` })
+    .from(chats)
+    .where(eq(chats.isManuallyCorrected, true));
+  const correctedChats = Number(correctedChatsResult[0]?.count || 0);
+
+  const correctionRate = totalChats > 0 ? (correctedChats / totalChats) * 100 : 0;
+  return {
+    totalChats,
+    correctedChats,
+    correctionRate: Math.round(correctionRate * 100) / 100, // Round to 2 decimal places
+  };
 }

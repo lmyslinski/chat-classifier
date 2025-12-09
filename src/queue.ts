@@ -1,6 +1,6 @@
 import { type Job, Queue, Worker } from "bullmq";
 import IORedis from "ioredis";
-import { classifyChats} from "./classifier";
+import { classifyChats } from "./classifier";
 
 const connection = new IORedis({
   host: "localhost",
@@ -25,6 +25,8 @@ export async function setupRepeatableJob() {
       every: 10000,
     },
   });
+}
+
 sampleWorker.on("failed", (job: Job | undefined, err: Error) => {
   console.error(`Classification job ${job?.id} failed:`, err);
 });
