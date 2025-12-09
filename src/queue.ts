@@ -28,10 +28,6 @@ export async function setupRepeatableJob() {
   });
 }
 
-sampleWorker.on("completed", (job: Job, result: any) => {
-  console.log(`Job ${job.id} completed with result:`, result);
-});
-
 sampleWorker.on("failed", (job: Job | undefined, err: Error) => {
   console.error(`Job ${job?.id} failed:`, err);
 });
