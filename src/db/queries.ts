@@ -90,17 +90,3 @@ export async function setCorrectedCategoryOnOriginalChat(chatId: string, correct
     })
     .where(eq(chats.id, chatId));
 }
-
-export async function fetchCorrectedChatsWithoutEmbeddings(): Promise<ChatWithMessages[]> {
-  const correctedChats = (await db.query.chats.findMany({
-    where: eq(chats.isManuallyCorrected, true),
-    with: {
-      messages: {
-        where: eq(messages.type, "user"),
-        orderBy: messages.timestamp,
-      },
-    },
-  })) as ChatWithMessages[];
-
-  return correctedChats.filter((p) => p.messages.length > 0);
-}

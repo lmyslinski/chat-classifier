@@ -1,28 +1,22 @@
 import { google } from "@ai-sdk/google";
-import { embedMany, generateObject } from "ai";
+import { generateObject } from "ai";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "./db/db";
-import {
-  createCorrection,
-  fetchCorrectedChatsWithoutEmbeddings,
-  fetchUnclassifedOrLowConfidenceChats,
-  findSimilarCorrection,
-} from "./db/queries";
+import { fetchUnclassifedOrLowConfidenceChats, findSimilarCorrection } from "./db/queries";
 import { chats } from "./db/schema";
-import type { ChatWithMessages, ChatCategory } from "./types";
-
-export async function classifyChats() {
-  const unclassifiedChats = await fetchUnclassifedOrLowConfidenceChats();
-  console.log(`Found ${unclassifiedChats.length} chats`);
-  await Promise.all(unclassifiedChats.map(classifyChat));
-}
+import type { ChatWithMessages } from "./types";
 
 const classificationSchema = z.object({
   category: z.enum(["billing", "technical", "sales", "general"]).describe("The category of the chat"),
   confidence: z.number().min(0).max(100).describe("Confidence score from 0-100"),
 });
 
+export async function classifyChats() {
+  const unclassifiedChats = await fetchUnclassifedOrLowConfidenceChats();
+  console.log(`Found ${unclassifiedChats.length} chats`);
+  await Promise.all(unclassifiedChats.map(classifyChat));
+}
 async function classifyChat(chat: ChatWithMessages) {
   const messageText = chat.messages.map((msg) => msg.text).join("\n");
 
@@ -70,21 +64,4 @@ Categories:
       confidence: object.confidence,
     })
     .where(eq(chats.id, chat.id));
-}
-
-export async function generateEmbeddings() {
-  const correctedChats = await fetchCorrectedChatsWithoutEmbeddings();
-  console.log(`Generating embeddings for ${correctedChats.length} corrected chats`);
-
-  for (const chat of correctedChats) {
-    const messageText = chat.messages.map((msg) => msg.text).join("\n");
-
-    const { embeddings } = await embedMany({
-      model: "gemini-embedding-001",
-      values: [messageText],
-    });
-
-    const embedding = embeddings[0] || [];
-    await createCorrection(chat.id, chat.category as ChatCategory, embedding);
-  }
 }
