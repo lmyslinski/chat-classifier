@@ -1,7 +1,12 @@
+export type ChatCategory = "billing" | "technical" | "sales" | "general";
+
 export interface ChatWithMessages {
   id: string;
-  category: string | null;
+  category: ChatCategory | null;
   confidence: number | null;
+  embedding?: number[];
+  isManuallyCorrected?: boolean;
+  correctedAt?: Date;
   messages: Array<{
     id: string;
     type: string;
@@ -9,6 +14,19 @@ export interface ChatWithMessages {
     chatId: string;
     timestamp: Date;
   }>;
+}
+
+export interface Correction {
+  id: number;
+  chatId: string;
+  correctedCategory: ChatCategory;
+  embedding: number[];
+  createdAt: Date;
+}
+
+export interface SimilarCorrection {
+  correctedCategory: ChatCategory;
+  similarity: number;
 }
 
 export type ThreadMessage = {
@@ -20,6 +38,7 @@ export type ThreadMessage = {
   timestamp: string;
 };
 
+// Webhook payload types
 export interface WebhookEvent {
   webhook_id: string;
   secret_key: string;

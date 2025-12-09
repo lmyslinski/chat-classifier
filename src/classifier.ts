@@ -3,7 +3,13 @@ import { embedMany, generateObject } from "ai";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "./db/db";
-import { fetchUnclassifedOrLowConfidenceChats } from "./db/queries";
+import {
+  createCorrection,
+  fetchCorrectedChatsWithoutEmbeddings,
+  fetchUnclassifedOrLowConfidenceChats,
+  findSimilarCorrection,
+  updateChatEmbeddings,
+} from "./db/queries";
 import { chats } from "./db/schema";
 import type { ChatWithMessages } from "./types";
 
@@ -23,6 +29,24 @@ async function classifyChat(chat: ChatWithMessages) {
 
   console.log(`Starting classification: ${messageText}`);
 
+  const similarCorrection = await findSimilarCorrection(chat.messages);
+  if (similarCorrection) {
+    console.log(
+      `Found similar correction: ${similarCorrection.correctedCategory} (similarity: ${similarCorrection.similarity})`,
+    );
+
+    await db
+      .update(chats)
+      .set({
+        category: similarCorrection.correctedCategory as "billing" | "technical" | "sales" | "general",
+        confidence: 85,
+      })
+      .where(eq(chats.id, chat.id));
+
+    return;
+  }
+
+  // 2. Fallback to AI classification
   const { object } = await generateObject({
     model: google("gemini-2.5-flash"),
     schema: classificationSchema,
@@ -38,7 +62,7 @@ Categories:
 - general: General conversation, greetings, feedback, other topics`,
   });
 
-  console.log(`Category: ${object.category} Confidence: ${object.confidence}`);
+  console.log(`AI Category: ${object.category} Confidence: ${object.confidence}`);
 
   await db
     .update(chats)
@@ -50,8 +74,18 @@ Categories:
 }
 
 export async function generateEmbeddings() {
-  const { embeddings } = await embedMany({
-    model: "gemini-embedding-001",
-    values: ["sunny day at the beach", "rainy afternoon in the city", "snowy night in the mountains"],
-  });
+  const correctedChats = await fetchCorrectedChatsWithoutEmbeddings();
+  console.log(`Generating embeddings for ${correctedChats.length} corrected chats`);
+
+  for (const chat of correctedChats) {
+    const messageText = chat.messages.map((msg) => msg.text).join("\n");
+
+    const { embeddings } = await embedMany({
+      model: "gemini-embedding-001",
+      values: [messageText],
+    });
+
+    const embedding = embeddings[0] || [];
+    updateChatEmbeddings(chat.id, embedding);
+  }
 }

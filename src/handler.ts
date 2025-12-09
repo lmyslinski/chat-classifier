@@ -1,5 +1,13 @@
-import { persistMessage } from "./db/queries";
-import type { ThreadMessage, WebhookEvent } from "./types";
+import { type Embedding, embedMany } from "ai";
+import type { Context } from "hono";
+import {
+  createCorrection,
+  getCurrentChat,
+  persistMessage,
+  setCorrectedCategoryOnOriginalChat,
+  updateChatEmbeddings,
+} from "./db/queries";
+import type { ChatCategory, ChatWithMessages, ThreadMessage, WebhookEvent } from "./types";
 
 function extractMessage(event: WebhookEvent): ThreadMessage {
   return {
@@ -20,4 +28,32 @@ export async function processMessage(event: WebhookEvent) {
   const msg = extractMessage(event);
   console.log(msg);
   await persistMessage(msg);
+}
+
+export async function handleCorrection(c: Context, chatId: string, correctCategory: ChatCategory) {
+  const chat = await getCurrentChat(chatId);
+
+  if (!chat) {
+    return c.json({});
+  }
+
+  await setCorrectedCategoryOnOriginalChat(chatId, correctCategory);
+  const embedding = await generateEmbeddingsForChat(chat);
+  await createCorrection(chat.id, correctCategory);
+  await updateChatEmbeddings(chat.id, embedding);
+
+  return c.json({ success: true });
+}
+
+async function generateEmbeddingsForChat(chat: ChatWithMessages): Promise<Embedding> {
+  const messageText = chat.messages.map((msg) => msg.text).join("\n");
+
+  const { embeddings } = await embedMany({
+    model: "gemini-embedding-001",
+    values: [messageText],
+  });
+  if (embeddings.length < 1 || !embeddings[0]) {
+    throw new Error("Invalid embedding ");
+  }
+  return embeddings[0];
 }
