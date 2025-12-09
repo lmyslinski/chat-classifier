@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { z } from "zod";
+import { getChatMetrics } from "./src/db/queries";
 import { handleCorrection, processMessage } from "./src/handler";
 import { sampleWorker, setupRepeatableJob } from "./src/queue";
-import { getChatMetrics } from "./src/db/queries";
 import type { WebhookEvent } from "./src/types";
 
 const app = new Hono();
