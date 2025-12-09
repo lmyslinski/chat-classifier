@@ -28,7 +28,7 @@ export async function handleCorrection(c: Context, chatId: string, correctCatego
   const chat = await getCurrentChat(chatId);
 
   if (!chat) {
-    return c.json({});
+    return c.json({ error: "Chat not found" }, 404);
   }
 
   await setCorrectedCategoryOnOriginalChat(chatId, correctCategory);
