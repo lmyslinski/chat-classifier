@@ -6,6 +6,10 @@ Start the dependencies:
 
 `docker-compose up -d`
 
+Enable the pgvector extension:
+
+`docker exec chat-db psql -U postgres -d app -c "CREATE EXTENSION IF NOT EXISTS vector;"`
+
 Run the migrations: 
 
 `bunx drizzle-kit migrate`

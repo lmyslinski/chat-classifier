@@ -1,7 +1,7 @@
-import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { chatModel } from "./ai";
 import { db } from "./db/db";
 import { fetchUnclassifedOrLowConfidenceChats, findSimilarCorrection } from "./db/queries";
 import { chats } from "./db/schema";
@@ -32,7 +32,7 @@ async function classifyChat(chat: ChatWithMessages) {
       .update(chats)
       .set({
         category: similarCorrection.correctedCategory as "billing" | "technical" | "sales" | "general",
-        confidence: similarCorrection.similarity,
+        confidence: Math.round(similarCorrection.similarity * 100),
       })
       .where(eq(chats.id, chat.id));
 
@@ -40,7 +40,7 @@ async function classifyChat(chat: ChatWithMessages) {
   }
 
   const { object } = await generateObject({
-    model: google("gemini-2.5-flash"),
+    model: chatModel,
     schema: classificationSchema,
     prompt: `Classify this chat conversation into one of these categories: billing, technical, sales, general. Also return the confidence score from 0-100 on how well does the category fit.
 

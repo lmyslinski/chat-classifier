@@ -22,7 +22,7 @@ export const corrections = pgTable("corrections", {
     length: 255,
     enum: ["billing", "technical", "sales", "general"],
   }).notNull(),
-  embedding: vector({ dimensions: 768 }).notNull(),
+  embedding: vector({ dimensions: 3072 }).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

@@ -1,5 +1,6 @@
 import { type Embedding, embedMany } from "ai";
 import type { Context } from "hono";
+import { embeddingModel } from "./ai";
 import { createCorrection, getCurrentChat, persistMessage, setCorrectedCategoryOnOriginalChat } from "./db/queries";
 import type { ChatCategory, ChatWithMessages, ThreadMessage, WebhookEvent } from "./types";
 
@@ -41,8 +42,10 @@ export async function handleCorrection(c: Context, chatId: string, correctCatego
 async function generateEmbeddingsForChat(chat: ChatWithMessages): Promise<Embedding> {
   const messageText = chat.messages.map((msg) => msg.text).join("\n");
 
+  console.log(`Messages: ${messageText}`);
+
   const { embeddings } = await embedMany({
-    model: "gemini-embedding-001",
+    model: embeddingModel,
     values: [messageText],
   });
   if (embeddings.length < 1 || !embeddings[0]) {

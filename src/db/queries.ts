@@ -1,5 +1,6 @@
 import { type Embedding, embedMany } from "ai";
-import { eq, isNull, lt, or, sql } from "drizzle-orm";
+import { and, eq, isNull, lt, or, sql } from "drizzle-orm";
+import { embeddingModel } from "../ai";
 import type { ChatCategory, ChatMetrics, ChatWithMessages, ThreadMessage } from "../types";
 import { db } from "./db";
 import { chats, corrections, messages } from "./schema";
@@ -9,7 +10,7 @@ export async function getCurrentChat(chatId: string): Promise<ChatWithMessages |
     where: eq(chats.id, chatId),
     with: {
       messages: {
-        where: eq(chats.id, chatId),
+        where: and(eq(messages.chatId, chatId), eq(messages.type, "user")),
       },
     },
   })) as ChatWithMessages | undefined;
@@ -53,18 +54,23 @@ export async function findSimilarCorrection(
   const messageText = messages.map((m) => m.text).join("\n");
 
   const { embeddings } = await embedMany({
-    model: "gemini-embedding-001",
+    model: embeddingModel,
     values: [messageText],
   });
   const embedding = embeddings[0];
 
+  if (!embedding) {
+    return null;
+  }
+
   // Search for similar corrections using cosine similarity
+  const embeddingString = `[${embedding.join(",")}]`;
   const result = await db.execute(sql`
     SELECT 
       corrected_category,
-      1 - (embedding <=> ${embedding}) as similarity
+      1 - (embedding <=> ${embeddingString}::vector) as similarity
     FROM corrections 
-    WHERE 1 - (embedding <=> ${embedding}) > 0.85
+    WHERE 1 - (embedding <=> ${embeddingString}::vector) > 0.85
     ORDER BY similarity DESC
     LIMIT 1
   `);
