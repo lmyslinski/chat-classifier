@@ -1,5 +1,5 @@
 import { type Embedding, embedMany } from "ai";
-import { and, eq, isNull, lt, or, sql } from "drizzle-orm";
+import { and, cosineDistance, desc, eq, gt, isNull, lt, or, sql } from "drizzle-orm";
 import { embeddingModel } from "../ai";
 import type { ChatCategory, ChatMetrics, ChatWithMessages, ThreadMessage } from "../types";
 import { db } from "./db";
@@ -64,18 +64,21 @@ export async function findSimilarCorrection(
   }
 
   // Search for similar corrections using cosine similarity
-  const embeddingString = `[${embedding.join(",")}]`;
-  const result = await db.execute(sql`
-    SELECT 
-      corrected_category,
-      1 - (embedding <=> ${embeddingString}::vector) as similarity
-    FROM corrections 
-    WHERE 1 - (embedding <=> ${embeddingString}::vector) > 0.85
-    ORDER BY similarity DESC
-    LIMIT 1
-  `);
+  const similarity = sql<number>`1 - (${cosineDistance(corrections.embedding, embedding)})`;
 
-  return result.rows.length > 0 ? (result.rows[0] as { correctedCategory: string; similarity: number }) : null;
+  const result = await db
+    .select({
+      correctedCategory: corrections.correctedCategory,
+      similarity,
+    })
+    .from(corrections)
+    .where(gt(similarity, 0.85))
+    .orderBy((t) => desc(t.similarity))
+    .limit(1);
+
+  return result.length > 0
+    ? { correctedCategory: result[0]!.correctedCategory, similarity: result[0]!.similarity }
+    : null;
 }
 
 export async function createCorrection(chatId: string, correctedCategory: ChatCategory, embedding: Embedding) {
